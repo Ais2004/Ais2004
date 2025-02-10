@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Speed Predictor</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        input, select { margin: 5px; padding: 10px; width: 200px; }
+        button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+        #result { font-size: 20px; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Train Speed Predictor</h1>
+
+    <label>Current Speed:</label>
+    <input type="number" id="current_speed" value="80"><br>
+
+    <label>Track Condition:</label>
+    <select id="track_condition">
+        <option value="Moderate">Moderate</option>
+        <option value="Good">Good</option>
+        <option value="Poor">Poor</option>
+    </select><br>
+
+    <label>Weather:</label>
+    <select id="weather">
+        <option value="Clear">Clear</option>
+        <option value="Rainy">Rainy</option>
+        <option value="Foggy">Foggy</option>
+    </select><br>
+
+    <label>Obstacle Detected (0/1):</label>
+    <input type="number" id="obstacle_detected" value="0" min="0" max="1"><br>
+
+    <label>Station Proximity (in km):</label>
+    <input type="number" id="station_proximity" value="2.5"><br>
+
+    <button onclick="predictSpeed()">Predict Speed</button>
+
+    <p id="result"></p>
+
+    <script>
+        async function predictSpeed() {
+            const url = "https://6887-35-223-61-196.ngrok-free.app/predict"; // Your Flask API URL
+            
+            const data = {
+                current_speed: parseFloat(document.getElementById("current_speed").value),
+                track_condition: document.getElementById("track_condition").value,
+                weather: document.getElementById("weather").value,
+                obstacle_detected: parseInt(document.getElementById("obstacle_detected").value),
+                station_proximity: parseFloat(document.getElementById("station_proximity").value),
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                document.getElementById("result").innerText = 
+                    result.recommended_speed ? `Recommended Speed: ${result.recommended_speed} km/h` : `Error: ${result.error}`;
+            } catch (error) {
+                document.getElementById("result").innerText = "Error connecting to the API!";
+            }
+        }
+    </script>
+
+</body>
+</html>
